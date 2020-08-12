@@ -4,7 +4,6 @@ import com.gabrigiunchi.recaptcha.model.CaptchaRequest
 import com.gabrigiunchi.recaptcha.service.CaptchaValidator
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.PostMapping
@@ -17,7 +16,7 @@ class FooResponse(val version: String, val status: String)
 
 @RequestMapping("/foo")
 @RestController
-class FooController(private val captchaValidator: CaptchaValidator) {
+class FooController(captchaValidator: CaptchaValidator) : BaseCaptchaController(captchaValidator) {
 
     @Value("\${application.version}")
     private lateinit var version: String
@@ -25,9 +24,8 @@ class FooController(private val captchaValidator: CaptchaValidator) {
     @PostMapping
     fun foo(@Validated @RequestBody request: FooRequest): ResponseEntity<FooResponse> {
         LOGGER.info("GET request with id ${request.id}")
-        return if (this.captchaValidator.validateCaptcha(request.captchaResponse)) {
-            ResponseEntity.ok(FooResponse(this.version, "OK"))
-        } else ResponseEntity(HttpStatus.FORBIDDEN)
+        this.validateCaptcha(request.captchaResponse)
+        return ResponseEntity.ok(FooResponse(this.version, "OK"))
     }
 
     companion object {
