@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Spring Boot reCAPTCHA with AOP</title>
+    <script type="text/javascript"
+            src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <script src='https://www.google.com/recaptcha/api.js'></script>
+</head>
+<body>
+
+<script>
+    $(document).ready(function () {
+        $("#button").click(function () {
+            console.log('Sending request');
+            var captchaResponse = grecaptcha.getResponse();
+            var name = $("#name").val();
+            var helloRequest = {
+                'id': name,
+                'captchaResponse': captchaResponse
+            };
+
+            $.ajax({
+                type: "POST",
+                contentType: 'application/json',
+                dataType: "json",
+                data: JSON.stringify(helloRequest),
+                url: "http://localhost:8080/foo",
+                success: function (data) {
+                    alert('status: ' + data.status + ', version: ' + data.version);
+                }
+            });
+        });
+    });
+</script>
+
+<div>
+    <input type="text" id="name"/>
+    <button type="submit" id="button">Hello</button>
+    <div class="g-recaptcha" data-sitekey="6LeF1r0ZAAAAAEIv72IUnMo-ujTQ1raUdmzxM4Q7"></div>
+</div>
+</body>
+</html>
